@@ -20,8 +20,14 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 
 public class DstService extends Application {
@@ -50,7 +56,9 @@ public class DstService extends Application {
             @Override
             public void handle(ActionEvent event) {
 //                new Thread(new Runnable() { @Override public void run() { socket(); } }).start();//防止ui卡顿
-                test();
+//                test();
+                client();
+
             }
         });
 
@@ -65,10 +73,11 @@ public class DstService extends Application {
         send.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                try {
-                    OutputStream os = socket.getOutputStream();
-                    os.write(notification.getText().getBytes("GBK"));
-                }catch (Exception e){e.printStackTrace();}
+//                sendExit(notification.getText());
+                System.out.print("点击 send");
+                for(Iterator<TestClient> it = list.iterator(); it.hasNext();    )    {
+                  try{  it.next().send("发送消息");}catch (Throwable t){t.printStackTrace();}
+                }
             }
         });
 
@@ -80,9 +89,13 @@ public class DstService extends Application {
         discon.setTranslateY(-40);
         discon.setPadding(new Insets(15));
         discon.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
+            @Override public void handle(ActionEvent event) {
                    System.out.print("点击 断开链接");
+                for(Iterator<TestClient> it = list.iterator(); it.hasNext();    )    {
+                      it.next().close();
+                }
+//                   sendExit("exit");
+//                try{socket.close();}catch (Throwable t){t.printStackTrace();}
             }
         });
 
@@ -107,10 +120,15 @@ public class DstService extends Application {
 
     }
 
+ private  void sendExit(String str){
+     try {
+         OutputStream os = socket.getOutputStream();
+         os.write(str.getBytes("GBK"));
+     }catch (Exception e){e.printStackTrace();}
+ }
 
 
-
-    public static void main(String[] args) {
+  public static void main(String[] args) {
         launch(args);
     }
 
@@ -201,5 +219,72 @@ private void test(){
         e.printStackTrace();
     }
 }
+
+ List<TestClient> list = new ArrayList();
+
+private void client() {
+    // 开启三个客户端，一个线程代表一个客户端
+    for (int i = 0; i < 3; i++) {
+        new Thread(new Runnable() {
+            @Override public void run() {
+                try {
+                    TestClient client = TestClientFactory.createClient();
+                    client.send(String.format("Hello,Server!I'm %d.这周末天气如何。", client.client.getLocalPort()));
+                    client.receive();
+                    list.add(client);
+                } catch (Exception e) { e.printStackTrace(); }
+            }
+        }).start();
+    }
+
+}
+
+    static class TestClientFactory {
+        public static TestClient createClient() throws Exception { return new TestClient("127.0.0.1", 8080); }
+    }
+
+    /**
+     * 测试客户端
+     */
+    static class TestClient {
+        public TestClient(String host, int port) throws Exception {  // 与服务端建立连接
+            this.client = new Socket(host, port);
+            System.out.println("Cliect[port:" + client.getLocalPort() + "] 与服务端建立连接...");
+        }
+        private Socket client;
+        private Writer writer;
+
+        public void send(String msg) throws Exception {  // 建立连接后就可以往服务端写数据了
+            if(writer == null) {
+                writer = new OutputStreamWriter(client.getOutputStream(), "gbk");
+            }
+            writer.write(msg);
+            writer.write("eof\n");
+            writer.flush();// 写完后要记得flush
+            System.out.println("Cliect[port:" + client.getLocalPort() + "] 消息发送成功");
+        }
+
+        public void receive() throws Exception { // 写完以后进行读操作
+            Reader reader = new InputStreamReader(client.getInputStream(), "gbk");
+            client.setSoTimeout(10*1000);// 设置接收数据超时间为10秒
+            char[] chars = new char[64];
+            int len;
+            StringBuilder sb = new StringBuilder();
+            while ((len = reader.read(chars)) != -1) {
+                sb.append(new String(chars, 0, len));
+            }
+            System.out.println("Cliect[port:" + client.getLocalPort() + "] 消息收到了，内容:" + sb.toString());
+//            reader.close();
+            // 关闭连接
+//            writer.close();
+//            client.close();
+        }
+
+        public void close(){
+           try{ client.close();}catch (Throwable t){t.printStackTrace();}
+        }
+
+    }
+
 
 }
