@@ -1,4 +1,4 @@
-package com.andlp.lib;
+package com.andlp.lib.rsa;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public class myClass {
 
 
 
-    public static void  setUp() throws Exception{//设置公私密钥
+    public static void  setUp() throws Exception{//???霉?????
         Map<String, Object> keyMap = RSACoder.initKey();
         publicKey = RSACoder.getPublicKey(keyMap);
         privateKey = RSACoder.getPrivateKey(keyMap);
@@ -35,12 +35,12 @@ public class myClass {
         byte[] encodedData = RSACoder.encryptByPublicKey(data, publicKey);
 
 //        String jiaStr = new String(encodedData);
-//        System.err.println(jiaStr.length()+",测试:\r"+jiaStr );
+//        System.err.println(jiaStr.length()+",????:\r"+jiaStr );
         StringBuffer sb=new StringBuffer();
         for(int i=0; i<encodedData.length; i++){
             sb.append(encodedData[i]+"|");
         }
-        System.out.println("你好:"+sb.toString());
+        System.out.println("???:"+sb.toString());
 
         byte[] decodedData = RSACoder.decryptByPrivateKey(encodedData, privateKey);
 
@@ -49,35 +49,35 @@ public class myClass {
     }
 
     public static void jie()throws Exception{
-        System.err.println("private add()------public jie()");//私钥加密  公钥解密
+        System.err.println("private add()------public jie()");//??????  ???????
         String inputStr = "sign";
         byte[] data = inputStr.getBytes();
 
         byte[] encodedData = RSACoder.encryptByPrivateKey(data, privateKey);
 
 //        for (byte  b:encodedData){
-//            System.err.println("测试:"+b );
+//            System.err.println("????:"+b );
 //        }
 
         String jiaStr = new String(encodedData);
         System.err.println("str:" + jiaStr + "\n\r" + "  " );//
-        System.err.println(jiaStr.length()+",测试:\r" );
+        System.err.println(jiaStr.length()+",ceshi:\r" );
 
 
         byte[] decodedData = RSACoder .decryptByPublicKey(encodedData, publicKey);
 
         String outputStr = new String(decodedData);
-        System.err.println("before  jie()" + inputStr + "\n\r" + "after jie() " + outputStr);//加密之前  解密之后
+        System.err.println("before  jie()" + inputStr + "\n\r" + "after jie() " + outputStr);//??????  ???????
 
 
-        System.err.println("private sign  ------  public voli sign");//私钥签名  公钥验证签名
-        // 产生签名
+        System.err.println("private sign  ------  public voli sign");//?????  ?????????
+        // ???????
         String sign = RSACoder.sign(encodedData, privateKey);
-        System.err.println("sign:\r" + sign);                                  //签名
+        System.err.println("sign:\r" + sign);                                  //???
 
-        // 验证签名
+        // ??????
         boolean status = RSACoder.verify(encodedData, publicKey, sign);
-        System.err.println("state:\r" + status);                              //状态
+        System.err.println("state:\r" + status);                              //??
 
     }
 

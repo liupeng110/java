@@ -2,9 +2,9 @@ package com.andlp.lib.my;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Iterator;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -29,7 +29,7 @@ public class Test  extends Application {
     public void start(Stage primaryStage) {
 
         final TextField notification = new TextField ();
-        notification.setText("å‘é€");
+        notification.setText("·¢ËÍ");
         notification.setLayoutX(50);
         notification.setLayoutY(50);
         notification.setPadding(new Insets(15));
@@ -44,9 +44,8 @@ public class Test  extends Application {
         btn.setTranslateY(-40);
         btn.setPadding(new Insets(15));
         btn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                socket();
+            @Override public void handle(ActionEvent event) {
+              new Thread(new Runnable() { @Override public void run() { socket(); } }).start();
             }
         });
 
@@ -61,7 +60,7 @@ public class Test  extends Application {
         send.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-
+             sendExit(notification.getText());
             }
         });
 
@@ -74,7 +73,7 @@ public class Test  extends Application {
         discon.setPadding(new Insets(15));
         discon.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent event) {
-                System.out.print("ç‚¹å‡» æ–­å¼€é“¾æ¥");
+                System.out.print("µã»÷ ¶Ï¿ªÁ´½Ó");
 
             }
         });
@@ -96,24 +95,30 @@ public class Test  extends Application {
 
     }
 
+    private  void sendExit(String str){
+        try {
+            OutputStream os = socket.getOutputStream();
+            os.write(str.getBytes("GBK"));
+        }catch (Exception e){e.printStackTrace();}
+    }
 
     private void socket(){
-        System.out.println("å•æœºäº‹ä»¶--è¿›å…¥socket" );
+        System.out.println("µ¥»úÊÂ¼ş--½øÈësocket" );
         try {
-            socket = new Socket("127.0.0.1", 30000);
+            socket = new Socket("192.168.1.131", 5029);//192.168.1.131       www.bkksextoy.com
             socket.setKeepAlive(true);
             socket.setSoTimeout(10);
             while (true) {
-                socket.sendUrgentData(0xFF); // å‘é€å¿ƒè·³åŒ…
+                socket.sendUrgentData(0xFF); // ·¢ËÍĞÄÌø°ü
                 System.out.println(socket.isBound());
                 System.out.println(socket.isClosed());
                 System.out.println(socket.isConnected());
                 System.out.println(socket.isInputShutdown());
                 System.out.println(socket.isOutputShutdown());
-                System.out.println("ç›®å‰å¤„äºé“¾æ¥çŠ¶æ€ï¼");
+                System.out.println("Ä¿Ç°´¦ÓÚÁ´½Ó×´Ì¬£¡");
                 System.out.println(socket.isOutputShutdown());
-                System.out.println("æ–°è¿æ¥:"+socket.getInetAddress()+":"+socket.getPort());
-                System.out.println("------------æˆ‘æ˜¯åˆ†å‰²çº¿------------");
+                System.out.println("ĞÂÁ¬½Ó:"+socket.getInetAddress()+":"+socket.getPort());
+                System.out.println("------------ÎÒÊÇ·Ö¸îÏß------------");
 
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter out = new PrintWriter(socket.getOutputStream());
@@ -128,11 +133,11 @@ public class Test  extends Application {
             }
 
 
-            Thread.sleep(3 * 1000);//çº¿ç¨‹ç¡çœ 3ç§’
+            Thread.sleep(3 * 1000);//Ïß³ÌË¯Ãß3Ãë
 
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("å•æœºäº‹ä»¶--è¿›å…¥å¼‚å¸¸"+e.getLocalizedMessage() );
+            System.out.println("µ¥»úÊÂ¼ş--½øÈëÒì³£"+e.getLocalizedMessage() );
         }
     }
 
