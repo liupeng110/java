@@ -8,6 +8,7 @@ repositories {
 }
 
 jar {
+    baseName = 'java'
     manifest {
         attributes 'Main-Class': 'com.andlp.lib.my.Test'
     }
@@ -16,6 +17,13 @@ jar {
     into('assets') {
         from 'assets'
     }
+
+    from('src/main/java') {
+        include '**/*.txt'
+        include '**/*.png'
+        include '**/*.png'
+    }
+
 }
 
 
@@ -31,5 +39,4 @@ task download(type: Copy) {
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
-
 
